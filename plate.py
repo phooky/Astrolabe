@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import math
 from geometry import *
-from render import PygameRender
+from render import CairoRender
 
 # Create lines for plate with given parameters
 class Plate:
@@ -48,9 +48,9 @@ class Plate:
         "Generate curves for the azimuths."
         return []
 
-p = Plate(200,math.radians(0),math.radians(23))
+p = Plate(350,math.radians(0),math.radians(23))
 
-r = PygameRender()
+r = CairoRender()
 import time
 
 for arc in p.tropics():
@@ -60,4 +60,4 @@ for a in p.almucantars():
     for al in l:
         r.render(al)
 
-time.sleep(10)
+r.output("plate.png")

@@ -1,22 +1,36 @@
 #!/usr/bin/python
 
-import pygame
+import cairo
 from geometry import *
 
-class PygameRender:
+class CairoRender:
     def __init__(self):
-        pygame.init()
-        self.window = pygame.display.set_mode((640, 480)) 
+        size = Point(800,800)
+        self.surf = cairo.ImageSurface(cairo.FORMAT_RGB24,size.x,size.y)
+        self.ctx = cairo.Context(self.surf)
+        # fill everyting with white
+        self.ctx.new_path()
+        self.ctx.set_source_rgb(0.9,0.9,0.9)
+        self.ctx.rectangle(0,0,size.x,size.y)
+        self.ctx.fill()  # fill current path
 
     def render(self,e):
+        self.ctx.set_source_rgb(0,0.0,0.0)
+        self.ctx.set_line_width(e.weight)
         if isinstance(e,Arc):
-            pygame.draw.arc(self.window,(255,255,255),
-                    pygame.Rect((320-e.radius)-e.center[0],
-                                (240-e.radius)-e.center[1],
-                                2*e.radius,2*e.radius),
-                    e.start,e.stop,e.weight)
+            # draw a circle in the center
+            self.ctx.new_path()
+            self.ctx.arc(400+e.center.x,400+e.center.y,
+                         e.radius,e.start,e.stop)
+            self.ctx.stroke()  # stroke current path
         elif isinstance(e,Circle):
-            pygame.draw.circle(self.window,(255,255,255),
-                    (int(320-e.center[0]),int(240-e.center[1])),
-                               int(e.radius),int(e.weight))
-        pygame.display.flip() 
+            self.ctx.new_path()
+            self.ctx.arc(400+e.center.x,400+e.center.y,
+                         e.radius,0,2*math.pi)
+            self.ctx.stroke()
+
+    def output(self,path):
+        # save to PNG
+        self.surf.write_to_png(path)
+
+
