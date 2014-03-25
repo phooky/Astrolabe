@@ -61,5 +61,5 @@ def fundamental(rEq,declination):
     """
     # Seems a little grandiose to call this the fundamental equation
     # of the astrolabe, but okey dokey
-    return rEq * math.tan( (math.pi/4) - declination/2 )
+    return rEq * math.tan( ((math.pi/2) - declination)/2 )
 
