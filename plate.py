@@ -15,6 +15,14 @@ class Plate:
         self.lat = float(latitude)
         self.tilt = float(ecliptic)
 
+    def almucantar(self,declination,weight):
+        "Generate an almucantar for the given declination"
+        rl = fundamental(self.rEq,declination+((math.pi/2)-self.lat))
+        ru = -fundamental(self.rEq,declination-((math.pi/2)-self.lat))
+        c = (rl+ru)/2
+        r = abs(ru - c)
+        return Circle(Point(0,-c),r,weight)
+
     def tropics(self):
         "Generate circles for the tropics and equator."
         self.rCap = self.radius
@@ -23,20 +31,14 @@ class Plate:
         self.capricorn = Circle(Point(0,0),self.rCap,weight=4)
         self.equator = Circle(Point(0,0),self.rEq,weight=2)
         self.cancer = Circle(Point(0,0),self.rCan,weight=2)
+        self.horizon = self.almucantar(0,0)
         return [self.capricorn, self.cancer, self.equator]
 
     def almucantars(self):
         "Generate curves for the almucantars."
-        def almucantar(declination,weight):
-            "Generate an almucantar for the given declination"
-            rl = fundamental(self.rEq,declination+((math.pi/2)-self.lat))
-            ru = -fundamental(self.rEq,declination-((math.pi/2)-self.lat))
-            c = (rl+ru)/2
-            r = abs(ru - c)
-            return Circle(Point(0,-c),r,weight)
         # create circles
-        a = [almucantar(math.radians(d),2) for d in range(0,90,10)]
-        a = a + [almucantar(math.radians(d),1) for d in range(0,80,2)]
+        a = [self.almucantar(math.radians(d),2) for d in range(0,90,10)]
+        a = a + [self.almucantar(math.radians(d),1) for d in range(0,80,2)]
         # clip at capricorn
         return a
 
@@ -48,15 +50,18 @@ class Plate:
         "Generate curves for the azimuths."
         # compute zenith
         zenith = fundamental(self.rEq,self.lat)
+        nadir = fundamental(self.rEq,math.pi+self.lat)
+        cline = (zenith+nadir)/2
+        yaz = zenith - cline
+        print zenith, nadir, cline
         def azimuth(az,weight):
             "Generate a curve for the given azimuth"
-            left = zenith * math.tan(math.pi/2 - az)
-            r = zenith / math.cos(math.pi/2 - az)
-            return Circle(Point(-left,0),r,weight)
+            left = yaz * math.tan(az)
+            r = yaz / math.cos(az)
+            return Circle(Point(-left,cline),r,weight)
+        a = [azimuth(math.radians(d),0.5) for d in range(0,361,10)]
         # clip at horizon
-        a = [azimuth(math.radians(d),2) for d in range(0,180,10)]
-        a += [Circle(Point(0,zenith),5,2)]
-        return a
+        return a #sum([x.clip(self.horizon) for x in a],[])
 
 
 for lat in range(0,91,9):
