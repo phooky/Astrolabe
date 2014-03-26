@@ -37,7 +37,7 @@ class Plate:
         # create circles
         a = [almucantar(math.radians(d),2) for d in range(0,90,10)]
         a = a + [almucantar(math.radians(d),1) for d in range(0,80,2)]
-        # clip at outer radius
+        # clip at capricorn
         return a
 
     def meridians(self):
@@ -46,7 +46,17 @@ class Plate:
 
     def azimuths(self):
         "Generate curves for the azimuths."
-        return []
+        # compute zenith
+        zenith = fundamental(self.rEq,self.lat)
+        def azimuth(az,weight):
+            "Generate a curve for the given azimuth"
+            left = zenith * math.tan(math.pi/2 - az)
+            r = zenith / math.cos(math.pi/2 - az)
+            return Circle(Point(-left,0),r,weight)
+        # clip at horizon
+        a = [azimuth(math.radians(d),2) for d in range(0,180,10)]
+        a += [Circle(Point(0,zenith),5,2)]
+        return a
 
 
 for lat in range(0,91,9):
@@ -55,6 +65,10 @@ for lat in range(0,91,9):
     for arc in p.tropics():
         r.render(arc)
     for a in p.almucantars():
+        l = a.clip(p.capricorn)
+        for al in l:
+            r.render(al)
+    for a in p.azimuths():
         l = a.clip(p.capricorn)
         for al in l:
             r.render(al)
