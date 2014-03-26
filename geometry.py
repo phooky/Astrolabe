@@ -43,9 +43,15 @@ class Circle(Element):
             # find theta of distance
             alpha = d.theta()
             beta = findVertexAngle(d.len(),self.radius,c.radius)
+            s2 = alpha+math.pi-beta
+            e2 = alpha+math.pi+beta
+            try:
+                s2 = max(s2,self.start)
+                e2 = min(e2,self.stop)
+            except:
+                pass
             return [Arc(self.center,self.radius,
-                        alpha+math.pi-beta,
-                        alpha+math.pi+beta,self.weight)]
+                        s2, e2, self.weight)]
             #return [Circle(self.center,self.radius,self.weight)]
 
 class Arc(Circle):

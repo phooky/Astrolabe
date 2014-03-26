@@ -59,12 +59,13 @@ class Plate:
             left = yaz * math.tan(az)
             r = yaz / math.cos(az)
             return Circle(Point(-left,cline),r,weight)
-        a = [azimuth(math.radians(d),0.5) for d in range(0,361,10)]
+        a = [azimuth(math.radians(d),0.5) for d in range(-90,90,10)]
         # clip at horizon
+        a  = sum([x.clip(self.horizon) for x in a],[])
         return a #sum([x.clip(self.horizon) for x in a],[])
 
 
-for lat in range(0,91,9):
+for lat in [45]: #range(0,91,9):
     p = Plate(350,math.radians(lat),math.radians(23))
     r = CairoRender()
     for arc in p.tropics():
@@ -74,6 +75,7 @@ for lat in range(0,91,9):
         for al in l:
             r.render(al)
     for a in p.azimuths():
+        #r.render(a)
         l = a.clip(p.capricorn)
         for al in l:
             r.render(al)
