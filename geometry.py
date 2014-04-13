@@ -11,6 +11,13 @@ class Point:
         return Point(self.x-b.x,self.y-b.y)
     def theta(self):
         return math.atan2(self.y,self.x)
+    def normalized(self):
+        d=self.len()
+        return Point(self.x/d,self.y/d)
+    def __add__(self,v):
+        return Point(self.x+v.x,self.y+v.y)
+    def __mul__(self,c):
+        return Point(self.x*c,self.y*c)
     def __getitem__(self,key):
         if key == 0:
             return self.x
@@ -26,6 +33,21 @@ def findVertexAngle(a,b,c):
 class Element:
     def __init__(self,weight=1):
         self.weight = weight
+    def clip(self,clippedTo):
+        "Return a version of this object, clipped to the given object"
+        raise NotImplementedError()
+
+class Line(Element):
+    def __init__(self,center,direction,weight=1,start=-1000.0,stop=1000.0):
+        Element.__init__(self,weight)
+        self.center = center
+        self.direction = direction
+        self.start = start
+        self.stop = stop
+    def start_point(self):
+        return self.center + (self.direction*self.start)
+    def stop_point(self):
+        return self.center + (self.direction*self.stop)
 
 class Circle(Element):
     def __init__(self,center,radius,weight=1):
@@ -52,7 +74,6 @@ class Circle(Element):
                 pass
             return [Arc(self.center,self.radius,
                         s2, e2, self.weight)]
-            #return [Circle(self.center,self.radius,self.weight)]
 
 class Arc(Circle):
     def __init__(self,center,radius,start=0,stop=math.pi*2.1,weight=1):

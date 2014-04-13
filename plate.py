@@ -17,6 +17,10 @@ class Plate:
 
     def almucantar(self,declination,weight):
         "Generate an almucantar for the given declination"
+        if declination == 0.0:
+            import traceback
+            print "Warning: almu at 0"
+            traceback.print_stack()
         rl = fundamental(self.rEq,declination+((math.pi/2)-self.lat))
         ru = -fundamental(self.rEq,declination-((math.pi/2)-self.lat))
         c = (rl+ru)/2
@@ -65,8 +69,14 @@ class Plate:
         return a #sum([x.clip(self.horizon) for x in a],[])
 
 
-for lat in [45]: #range(0,91,9):
-    p = Plate(350,math.radians(lat),math.radians(23))
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate astrolabe plate for given latitude')
+    parser.add_argument('-l','--latitude',type=float,default=45.0)
+    parser.add_argument('-o','--output',default='plate{0:02.2f}.png')
+    args = parser.parse_args()
+
+    p = Plate(350,math.radians(args.latitude),math.radians(23))
     r = CairoRender()
     for arc in p.tropics():
         r.render(arc)
@@ -79,4 +89,8 @@ for lat in [45]: #range(0,91,9):
         l = a.clip(p.capricorn)
         for al in l:
             r.render(al)
-    r.output("plate{0:02d}.png".format(lat))
+    l = Line(Point(0,0),Point(2,1).normalized())
+    r.render(l)
+    l = Line(Point(0,0),Point(4,1).normalized(),start=20,stop=100)
+    r.render(l)
+    r.output(args.output.format(args.latitude))

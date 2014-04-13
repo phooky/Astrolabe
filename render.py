@@ -28,6 +28,13 @@ class CairoRender:
             self.ctx.arc(400+e.center.x,400+e.center.y,
                          e.radius,0,2*math.pi)
             self.ctx.stroke()
+        elif isinstance(e,Line):
+            self.ctx.new_path()
+            start = e.start_point()
+            end = e.stop_point()
+            self.ctx.move_to(start.x,start.y)
+            self.ctx.line_to(end.x,end.y)
+            self.ctx.stroke()
 
     def output(self,path):
         # save to PNG
