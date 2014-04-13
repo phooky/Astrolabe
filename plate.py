@@ -18,9 +18,8 @@ class Plate:
     def almucantar(self,declination,weight):
         "Generate an almucantar for the given declination"
         if declination == 0.0:
-            import traceback
+            return Line(Point(0,0),Point(1,0),weight)
             print "Warning: almu at 0"
-            traceback.print_stack()
         rl = fundamental(self.rEq,declination+((math.pi/2)-self.lat))
         ru = -fundamental(self.rEq,declination-((math.pi/2)-self.lat))
         c = (rl+ru)/2
@@ -89,8 +88,11 @@ if __name__ == '__main__':
         l = a.clip(p.capricorn)
         for al in l:
             r.render(al)
-    l = Line(Point(0,0),Point(2,1).normalized())
-    r.render(l)
-    l = Line(Point(0,0),Point(4,1).normalized(),start=20,stop=100)
-    r.render(l)
+    l1 = Line(Point(0,-100),Point(2,1).normalized())
+    r.render(l1)
+    l2 = Line(Point(200,0),Point(4,1).normalized())
+    r.render(l2)
+    l3 = l1.clip(l2)[0]
+    l3.weight = 5
+    r.render(l3)
     r.output(args.output.format(args.latitude))

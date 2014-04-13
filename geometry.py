@@ -14,8 +14,12 @@ class Point:
     def normalized(self):
         d=self.len()
         return Point(self.x/d,self.y/d)
+    def cross(self,v):
+        return self.x*v.y - self.y*v.x
     def __add__(self,v):
         return Point(self.x+v.x,self.y+v.y)
+    def __sub__(self,v):
+        return Point(self.x-v.x,self.y-v.y)
     def __mul__(self,c):
         return Point(self.x*c,self.y*c)
     def __getitem__(self,key):
@@ -48,6 +52,19 @@ class Line(Element):
         return self.center + (self.direction*self.start)
     def stop_point(self):
         return self.center + (self.direction*self.stop)
+    def clip(self,e):
+        "Clip to given element"
+        l=Line(self.center,self.direction,self.weight,self.start,self.stop)
+        if isinstance(e,Line):
+            c=l.direction.cross(e.direction)
+            if c == 0.0:
+                return [] #parallel lines
+            else:
+                t = -(self.center - e.center).cross(e.direction) / c
+                l.start = max(l.start,t)
+                return [l]
+        else:
+            return []
 
 class Circle(Element):
     def __init__(self,center,radius,weight=1):
@@ -56,6 +73,8 @@ class Circle(Element):
         self.radius = radius
     def clip(self,c):
         "Clip to given circle, return list of results"
+        if isinstance(c,Line):
+            return []
         d = self.center.diff(c.center)
         if d.len() >= self.radius+c.radius:
             return []
