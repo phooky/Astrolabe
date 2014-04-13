@@ -32,8 +32,8 @@ class CairoRender:
             self.ctx.new_path()
             start = e.start_point()
             end = e.stop_point()
-            self.ctx.move_to(start.x,start.y)
-            self.ctx.line_to(end.x,end.y)
+            self.ctx.move_to(400+start.x,400+start.y)
+            self.ctx.line_to(400+end.x,400+end.y)
             self.ctx.stroke()
 
     def output(self,path):
